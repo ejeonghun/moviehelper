@@ -9,10 +9,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.lunadev.moviehelper.R
 import com.lunadev.moviehelper.model.MovieElementAndInfo
+import java.text.DecimalFormat
 
 class ListAdapter : RecyclerView.Adapter<ListAdapter.ListViewHolder>() {
     private var listener: OnItemSelected? = null
     private var data: List<MovieElementAndInfo> = listOf()
+
+    fun formatNumber(number: String): String {
+        val formatter = DecimalFormat("#,###")
+        return formatter.format(number.toInt())
+    }
 
     fun updateData(data: List<MovieElementAndInfo>) {
         this.data = data.sortedBy { it.movieElement.rank } // 순위 순으로 정렬
@@ -48,6 +54,7 @@ class ListAdapter : RecyclerView.Adapter<ListAdapter.ListViewHolder>() {
         private val textViewOpenDt: TextView = v.findViewById(R.id.textViewOpenDt)
         private val textViewAudiAcc: TextView = v.findViewById(R.id.textViewAudiAcc)
         private val imageViewPoster: ImageView = v.findViewById(R.id.imageView)
+        private val textViewAudiCnt: TextView = v.findViewById(R.id.textViewAudiCnt)
 
         init {
             v.setOnClickListener {
@@ -73,11 +80,16 @@ class ListAdapter : RecyclerView.Adapter<ListAdapter.ListViewHolder>() {
                     movieInfo.copy(data = updatedData)
                 }
             }
-            textViewRank.text = "${movieElement.rank}위"
+            if (movieElement.rank == 1) {
+                // 왕관 아이콘
+                textViewRank.text = "👑 ${movieElement.rank}위"
+            } else {
+                textViewRank.text = "${movieElement.rank}위"
+            }
             textViewMovieNm.text = movieElement.movieNm
-            textViewOpenDt.text = "개봉일 :${movieElement.openDt}"
-            textViewAudiAcc.text = "누적 관객 :${movieElement.audiAcc}명"
-
+            textViewOpenDt.text = "\uD83D\uDCC5: ${movieElement.openDt}"
+            textViewAudiCnt.text = "일일 관객 :${formatNumber(movieElement.audiCnt)}명"
+            textViewAudiAcc.text = "누적 관객 :${formatNumber(movieElement.audiAcc.toString())}명"
 
             // 포스터 이미지는 Http 통신으로 받아오기 때문에 Glide 라이브러리 이용
             latestMovieInfo?.let { info ->

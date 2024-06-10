@@ -13,5 +13,5 @@
     <string name="movie_title">Movie title</string>
     <string name="movie_poster_url">Movie Poster</string>
     <string name="movie_stillimage">Movie StillImage</string>
-    <string name="intro_app_description">탐색하고 싶은 날짜를 선택해주세요.</string>
+    <string name="intro_app_description">🔍︎탐색하고 싶은 날짜를 선택해주세요.</string>
 </resources>

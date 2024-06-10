@@ -34,6 +34,7 @@ import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.DecimalFormat
 
 val supabaseUrl = BuildConfig.supabase_url
 val supabaseKey = BuildConfig.supabase_key
@@ -55,6 +56,10 @@ class InfoFragment : Fragment() {
     private var docID = ""
 
 
+    fun formatNumber(number: String): String {
+        val formatter = DecimalFormat("#,###")
+        return formatter.format(number.toInt())
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -190,7 +195,7 @@ class InfoFragment : Fragment() {
             binding.textViewTitle.text = info.firstOrNull()?.title?.replace(" !HE ", "")?.replace(" !HS ", "") // 영화 제목
             binding.textViewOriginalTitle.text = if(info.firstOrNull()?.titleOrg != "") "${info.firstOrNull()?.titleOrg}" else "${info.firstOrNull()?.titleEng}" // 영어제목 혹은 해당 국가 제목
             Log.d("InfoFragment", "영화 제목: ${info.firstOrNull()?.title}, ${info.firstOrNull()?.titleOrg}, ${info.firstOrNull()?.titleEng}")
-            binding.textViewTotalVisitors.text = "누적 관객 수 : ${viewModel.selectedMovieElement.value?.audiAcc}명" // 누적 관객 수
+            binding.textViewTotalVisitors.text = "누적 관객 수 : ${formatNumber(viewModel.selectedMovieElement.value?.audiAcc.toString())}명" // 누적 관객 수
             binding.genre.text = info.firstOrNull()?.genre // 장르
             binding.textViewRating.text = "${info.firstOrNull()?.rating}" // 등급
             binding.textViewSummary.text = info.firstOrNull()?.plots?.plot?.firstOrNull()?.plotText // 줄거리
@@ -256,15 +261,11 @@ class InfoFragment : Fragment() {
                         docId = docID,
                         // 영화 고유번호로 댓글을 구분
                     ))
-
-                if (response.data.isNotEmpty()) {
                     Log.d("InfoFragment", "댓글 작성 성공")
                     binding.editTextComment.text.clear() // 댓글 작성 후 EditText 초기화
                     fetchComments(docID) // 새로 DB에 데이터 요청
-                } else {
-                    Log.e("InfoFragment", "API 통신 실패")
                 }
-            } catch (e: Exception) {
+             catch (e: Exception) {
                 Log.e("InfoFragment", "Error: $e")
             }
         }

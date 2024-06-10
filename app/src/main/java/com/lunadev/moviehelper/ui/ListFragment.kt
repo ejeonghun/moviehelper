@@ -50,7 +50,7 @@ class ListFragment : Fragment() {
                 val date = LocalDate.parse(it, inputFormatter)
                 val outputFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")
                 val formattedDate = date.format(outputFormatter)
-                binding.textViewDate.text = "$formattedDate 박스오피스 순위"
+                binding.textViewDate.text = "$formattedDate \uD83D\uDCFD\uFE0F 박스오피스 순위"
                 viewModel.getRank(it)
             }
         }

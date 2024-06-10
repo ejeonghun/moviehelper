@@ -111,7 +111,6 @@ class MainViewModel: ViewModel() {
 
 
     fun getMovieSearchs(query: String, callback: (List<MovieInfo.Data.Result?>) -> Unit) { // 검색 API
-        val kmdbApiKey = "HF11HZ34DT5YS02661W9"
         RetrofitClient.infoApi.getMovieSearch(
             ServiceKey = kmdbApiKey,
             collection = "kmdb_new2",
