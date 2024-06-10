@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/introFragment">
+
+    <fragment
+        android:id="@+id/listFragment"
+        android:name="com.lunadev.moviehelper.ui.ListFragment"
+        android:label="fragment_list"
+        tools:layout="@layout/fragment_list" >
+        <action
+            android:id="@+id/action_listFragment_to_infoFragment"
+            app:destination="@id/infoFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/infoFragment"
+        android:name="com.lunadev.moviehelper.ui.InfoFragment"
+        android:label="fragment_info"
+        tools:layout="@layout/fragment_info" />
+    <fragment
+        android:id="@+id/introFragment"
+        android:name="com.lunadev.moviehelper.ui.IntroFragment"
+        android:label="fragment_intro"
+        tools:layout="@layout/fragment_intro" >
+        <action
+            android:id="@+id/action_introFragment_to_listFragment"
+            app:destination="@id/listFragment" />
+        <action
+            android:id="@+id/action_introFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+        <action
+            android:id="@+id/action_introFragment_to_appDescriptionFragment"
+            app:destination="@id/appDescriptionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.lunadev.moviehelper.ui.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" >
+        <action
+            android:id="@+id/action_searchFragment_to_searchInfoFragment"
+            app:destination="@id/searchInfoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchInfoFragment"
+        android:name="com.lunadev.moviehelper.ui.SearchInfoFragment"
+        android:label="SearchInfoFragment" />
+    <fragment
+        android:id="@+id/appDescriptionFragment"
+        android:name="com.lunadev.moviehelper.ui.AppDescriptionFragment"
+        android:label="fragment_app_description"
+        tools:layout="@layout/fragment_app_description" />
+
+</navigation>

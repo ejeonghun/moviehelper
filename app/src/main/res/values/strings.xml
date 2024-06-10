@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">MovieHelper</string>
+    <string name="CommentInfo">댓글</string>
+    <string name="movie_poster">Movie Poster</string>
+    <string name="replyContent">댓글 내용이 여기에 표시됩니다.</string>
+    <string name="replyCreatedDt">2021-01-01 00:00:00</string>
+    <string name="actorName">배우 이름</string>
+    <string name="actorOrgName">배우 원어 이름</string>
+    <string name="SearchHintValue">검색어를 입력하세요</string>
+    <string name="selectedTextviewValue">selected 날짜가 들어갈 TextView</string>
+    <string name="api_desc">API 제공</string>
+    <string name="app_description">앱 소개 \n 이 앱은 한국의 박스오피스 영화 순위를 날짜별로 선택하여 \n1위부터 10위까지를 볼 수 있고 해당 영화를 클릭을 하면 해당 영화에\n 대한 자세한 정보 "예고편", "포스터", "스틸샷", "배우", "총 관람객 수" 등 여러 \n 정보를 제공하여 주는 어플리케이션입니다.\n\n 그리고 또 하나의 기능은 영화에 대한 리뷰를 다른 사람들과 \n공유를 할 수 있습니다! \n\n 그리고 영화의 제목, 장르, 감독, 배우 등을 통해 영화를 검색할수 있습니다.</string>
+    <string name="movie_title">Movie title</string>
+    <string name="movie_poster_url">Movie Poster</string>
+    <string name="movie_stillimage">Movie StillImage</string>
+    <string name="intro_app_description">탐색하고 싶은 날짜를 선택해주세요.</string>
+</resources>
