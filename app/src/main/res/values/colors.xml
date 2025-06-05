@@ -3,9 +3,35 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="purple_200">#FFBB86FC</color>
-        <color name="backgroundColor">#FFFFFF</color>
-        <color name="primaryTextColor">#212121</color>
-        <color name="secondaryTextColor">#757575</color>
-        <color name="itemBackground">#CBFFFFFF</color>
-        <color name="kakiiro">#E2694A</color>
+    
+    <!-- Toss 스타일 컬러 팔레트 -->
+    <color name="toss_blue">#3182F6</color>
+    <color name="toss_blue_light">#4E9CFF</color>
+    <color name="toss_blue_dark">#1B64DA</color>
+    <color name="toss_gray_50">#F8F9FA</color>
+    <color name="toss_gray_100">#F1F3F4</color>
+    <color name="toss_gray_200">#E8EAED</color>
+    <color name="toss_gray_300">#DADCE0</color>
+    <color name="toss_gray_400">#BDC1C6</color>
+    <color name="toss_gray_500">#9AA0A6</color>
+    <color name="toss_gray_600">#80868B</color>
+    <color name="toss_gray_700">#5F6368</color>
+    <color name="toss_gray_800">#3C4043</color>
+    <color name="toss_gray_900">#202124</color>
+    
+    <!-- 영화 앱 특화 색상 -->
+    <color name="movie_accent">#FF6B6B</color>
+    <color name="movie_gold">#FFD700</color>
+    <color name="movie_rank_bg">#667EFF</color>
+    
+    <!-- 기존 색상 업데이트 -->
+    <color name="backgroundColor">#F8F9FA</color>
+    <color name="primaryTextColor">#202124</color>
+    <color name="secondaryTextColor">#5F6368</color>
+    <color name="itemBackground">#FFFFFF</color>
+    <color name="kakiiro">#E2694A</color>
+    
+    <!-- 그라데이션 색상 -->
+    <color name="gradient_start">#667EFF</color>
+    <color name="gradient_end">#3182F6</color>
 </resources>

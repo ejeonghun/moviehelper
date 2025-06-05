@@ -27,8 +27,6 @@ import com.lunadev.moviehelper.model.ReplyElement
 import com.lunadev.moviehelper.model.ReplyWriteDTO
 import com.lunadev.moviehelper.widget.CommentsAdapter
 import com.lunadev.moviehelper.widget.ImageSlideshowAdapter
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.Dispatchers
@@ -106,13 +104,15 @@ class SearchInfoFragment : Fragment() {
             // 동영상 설정
             val videoViewStillCut = binding.videoViewStillCut
             var videoUrl = info.firstOrNull()?.vods?.vod?.firstOrNull()?.vodUrl
-            Log.d("SearchInfoFragment", "Video URL: $videoUrl")
-
-            if (!videoUrl.isNullOrEmpty()) {
-                // 만약 동영상 URL이 있다면 스틸샷 imageView는 가림
-                binding.imageViewStillCuts.visibility = View.INVISIBLE
-                // CORS 문제 떄문에 https://www.kmdb.or.kr/trailer/trailerPlayPop?pFileNm=MK060579_P02.mp4 -> https://www.kmdb.or.kr/trailer/play/MK060579_P02.mp4 형식으로 변경
+            Log.d("SearchInfoFragment", "Video URL: $videoUrl");            if (!videoUrl.isNullOrEmpty()) {
+                // 만약 동영상 URL이 있다면 스틸샷 imageView는 가리고 동영상을 보여줌
+                binding.imageViewStillCuts.visibility = View.GONE
+                binding.videoViewStillCut.visibility = View.VISIBLE
+                
+                // CORS 문제 때문에 URL 변경
                 videoUrl = videoUrl.replace("/trailerPlayPop?pFileNm=", "/play/")
+                Log.d("SearchInfoFragment", "Modified Video URL: $videoUrl")
+                
                 val uri = Uri.parse(videoUrl)
                 val mediaController = android.widget.MediaController(requireContext())
                 mediaController.setAnchorView(videoViewStillCut)
@@ -121,76 +121,68 @@ class SearchInfoFragment : Fragment() {
                     setMediaController(mediaController)
                     setVideoURI(uri)
                     setOnPreparedListener { mediaPlayer ->
+                        Log.d("SearchInfoFragment", "Video prepared successfully")
                         mediaPlayer.start()
-                        // Optionally set video loop
                         mediaPlayer.isLooping = true
                     }
-                    setOnErrorListener { mediaPlayer, what, extra ->
-                        Log.e("VideoView", "Error: $what, Extra: $extra")
-                        true // Return true to indicate that the error was handled
+                    setOnErrorListener { _, what, extra ->
+                        Log.e("SearchInfoFragment", "VideoView Error - What: $what, Extra: $extra")
+                        // 오류 발생 시 이미지 슬라이더를 다시 보여줌
+                        binding.videoViewStillCut.visibility = View.GONE
+                        binding.imageViewStillCuts.visibility = View.VISIBLE
+                        false // 기본 오류 처리도 수행
+                    }
+                    setOnInfoListener { _, what, extra ->
+                        Log.d("SearchInfoFragment", "VideoView Info - What: $what, Extra: $extra")
+                        false
                     }
                 }
             } else {
-                // 만약 동영상이 없다면 동영상 UI는 가림
-                binding.videoViewStillCut.visibility = View.INVISIBLE
+                // 만약 동영상이 없다면 동영상 UI는 가리고 이미지를 보여줌
+                binding.videoViewStillCut.visibility = View.GONE
+                binding.imageViewStillCuts.visibility = View.VISIBLE
                 Log.d("SearchInfoFragment", "예고편이 없음")
-            }
+            }            // 영화 포스터는 스틸컷 슬라이더로 대체
 
-            // 영화 포스터
-            val posterUrls = info.firstOrNull()?.posters?.split("|")
-            val firstPosterUrl = posterUrls?.firstOrNull()
-            firstPosterUrl?.let {
-                Glide.with(requireContext())
-                    .load(firstPosterUrl)
-                    .into(binding.imageViewPoster)
-            }
-
-            val stillCuts = info.firstOrNull()?.stlls?.split("|") ?: emptyList()
+            val stillCuts = info.firstOrNull()?.stlls?.split("|")?.filter { it.isNotBlank() } ?: emptyList()
             Log.d("SearchInfoFragment", "Still Cuts: $stillCuts")
-            // 이미지 슬라이드 쇼 어댑터 설정
-            val viewPager = binding.imageViewStillCuts
-            val adapter = ImageSlideshowAdapter(requireContext(), stillCuts)
-            viewPager.adapter = adapter
+            
+            if (stillCuts.isNotEmpty()) {
+                // 이미지 슬라이드 쇼 어댑터 설정
+                val viewPager = binding.imageViewStillCuts
+                val adapter = ImageSlideshowAdapter(requireContext(), stillCuts)
+                viewPager.adapter = adapter
 
-            // 5초마다 자동으로 넘어가도록 설정
-            val handler = Handler(Looper.getMainLooper())
-            val delayMillis = 5000L // 5 seconds
-            val imageRunnable = object : Runnable {
-                override fun run() {
-                    val currentItem = viewPager.currentItem
-                    viewPager.setCurrentItem((currentItem + 1) % stillCuts.size, true)
-                    handler.postDelayed(this, delayMillis)
+                // 5초마다 자동으로 넘어가도록 설정 (이미지가 1개 이상일 때만)
+                if (stillCuts.size > 1) {
+                    val handler = Handler(Looper.getMainLooper())
+                    val delayMillis = 5000L // 5 seconds
+                    val imageRunnable = object : Runnable {
+                        override fun run() {
+                            val currentItem = viewPager.currentItem
+                            viewPager.setCurrentItem((currentItem + 1) % stillCuts.size, true)
+                            handler.postDelayed(this, delayMillis)
+                        }
+                    }
+                    handler.postDelayed(imageRunnable, delayMillis)
                 }
-            }
-            handler.postDelayed(imageRunnable, delayMillis)
-
-            binding.textViewReleaseDate.text = "개봉일 : ${info.firstOrNull()?.repRlsDate}" // 개봉일
-            binding.textViewDirector.text = "감독 ${info.firstOrNull()?.directors?.director?.firstOrNull()?.directorNm}" // 감독
-            binding.textViewTitle.text = info.firstOrNull()?.title?.replace(" !HE ", "")?.replace(" !HS ", "") // 영화 제목
-            binding.textViewOriginalTitle.text = if(info.firstOrNull()?.titleOrg != "") "${info.firstOrNull()?.titleOrg}" else "${info.firstOrNull()?.titleEng}" // 영어제목 혹은 해당 국가 제목
-            Log.d("SearchInfoFragment", "영화 제목: ${info.firstOrNull()?.title}, ${info.firstOrNull()?.titleOrg}, ${info.firstOrNull()?.titleEng}")
-            val audiAccString = info.firstOrNull()?.audiAcc ?: ""
-            val totalAudiAcc = if (audiAccString.isEmpty()) {
-                "집계중"
             } else {
-                val sum = audiAccString.split("|").sumOf { it.toIntOrNull() ?: 0 }
-                NumberFormat.getInstance().format(sum)
-            }
-            binding.textViewTotalVisitors.text = "누적 관객 수: $totalAudiAcc" // 누적 관객 수
-            binding.genre.text = info.firstOrNull()?.genre // 장르
-            binding.textViewRating.text = "${info.firstOrNull()?.rating}" // 등급
-            binding.textViewSummary.text = info.firstOrNull()?.plots?.plot?.firstOrNull()?.plotText // 줄거리
-            binding.textViewRuntime.text = "총 상영시간 : ${info.firstOrNull()?.runtime}분" // 총 러닝 타임
+                Log.d("SearchInfoFragment", "스틸컷 이미지가 없음")
+            }// 영화 기본 정보 설정
+            binding.textViewTitle.text = info.firstOrNull()?.title?.replace(" !HE ", "")?.replace(" !HS ", "") // 영화 제목
+            binding.textViewGenre.text = info.firstOrNull()?.genre // 장르
+            binding.textViewAudience.text = "${info.firstOrNull()?.rating}" // 등급
+            binding.textViewRuntime.text = "${info.firstOrNull()?.runtime}분" // 총 러닝 타임
+            
+            // 상세 정보 설정
+            binding.textViewDate.text = "${info.firstOrNull()?.repRlsDate}" // 개봉일
+            binding.textViewDirector.text = "${info.firstOrNull()?.directors?.director?.firstOrNull()?.directorNm}" // 감독
+            binding.textViewPlot.text = info.firstOrNull()?.plots?.plot?.firstOrNull()?.plotText // 줄거리            
+            // 텍스트 마키 효과 (제목이 길면 스크롤)
             val marqueeTextView: TextView = binding.textViewTitle
             marqueeTextView.isSelected = true
 
-            binding.textViewCompany.text = "제작사 : ${info.firstOrNull()?.company}" // 제작사
-
-            binding.buttonMoreDetail.setOnClickListener {// 자세히보기 버튼 클릭 시 kmdb 페이지로 이동
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.data = Uri.parse(info.firstOrNull()?.kmdbUrl)
-                startActivity(intent)
-            }
+            Log.d("SearchInfoFragment", "영화 제목: ${info.firstOrNull()?.title}, ${info.firstOrNull()?.titleOrg}, ${info.firstOrNull()?.titleEng}")
 
             val actors = info.firstOrNull()?.actors?.actor ?: emptyList()
             actorsAdapter.submitList(actors)
@@ -209,9 +201,7 @@ class SearchInfoFragment : Fragment() {
                             eq("docId", docID)
                         }
                     }
-
-
-                if (response.data != null) {
+                if (response.data.isNotEmpty()) {
                     Log.d("SearchInfoFragment", "Response Data: ${response.data}")
                     val type = object : TypeToken<List<ReplyElement>>() {}.type
                     val comments: List<ReplyElement> = Gson().fromJson(response.data, type)
@@ -242,14 +232,10 @@ class SearchInfoFragment : Fragment() {
                         docId = docID,
                         // 영화 고유번호로 댓글을 구분
                     ))
-
-                if (response.data != null) {
-                    Log.d("SearchInfoFragment", "댓글 작성 성공")
-                    binding.editTextComment.text.clear() // 댓글 작성 후 EditText 초기화
-                    fetchComments(docID) // 새로 DB에 데이터 요청
-                } else {
-                    Log.e("SearchInfoFragment", "API 통신 실패")
-                }
+                Log.d("SearchInfoFragment", "Response: $response")
+                Log.d("SearchInfoFragment", "댓글 작성 성공")
+                binding.editTextComment.text.clear() // 댓글 작성 후 EditText 초기화
+                fetchComments(docID) // 새로 DB에 데이터 요청
             } catch (e: Exception) {
                 Log.e("SearchInfoFragment", "Error: $e")
             }
